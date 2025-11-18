@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 django = "*"
 openai = "==0.28.0"
+requests = "*"
 
 [dev-packages]
 

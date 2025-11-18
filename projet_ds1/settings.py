@@ -46,19 +46,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'security_agent'
-
+    'banking_env',     
+    'security_agent',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',  we removed this to test the csrf vunerabiliy
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #we are going to add our security middleware
 ]
+SESSION_COOKIE_HTTPONLY = False  # Makes session hijacking easier
+SECURE_BROWSER_XSS_FILTER = False
 
 ROOT_URLCONF = 'projet_ds1.urls'
 
