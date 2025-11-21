@@ -54,11 +54,8 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-<<<<<<< Updated upstream
+    'banking_env.middleware.AISecurityMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',  we removed this to test the csrf vunerabiliy
-=======
-    # 'django.middleware.csrf.CsrfViewMiddleware',
->>>>>>> Stashed changes
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -139,3 +136,35 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Configuration de l'agent de sécurité
+AI_SECURITY_CONFIG = {
+    'ENABLED': True,
+    'THREAT_THRESHOLD': 0.7,
+    'BLOCK_MALICIOUS': True,
+    'LOG_ANALYSIS': True,
+}
+
+# Configuration du logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'security_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'security.log',
+        },
+    },
+    'loggers': {
+        'banking_env': {
+            'handlers': ['security_file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'security_agent': {
+            'handlers': ['security_file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}

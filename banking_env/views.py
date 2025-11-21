@@ -144,64 +144,76 @@ def transfer_money(request):
     if request.method == "POST":
         to_account = request.POST.get("to_account")
         amount = request.POST.get("amount")
+        
         try:
             from_account = BankAccount.objects.get(user=request.user)
             to_account_obj = BankAccount.objects.get(account_number=to_account)
-            if from_account.balance >= float(amount):
-                from_account.balance -= float(amount)
-                to_account_obj.balance += float(amount)
+            
+            # FIX: Convert amount to Decimal instead of float
+            from decimal import Decimal
+            transfer_amount = Decimal(amount)  # Convert to Decimal
+            
+            if from_account.balance >= transfer_amount:
+                # FIX: Use Decimal arithmetic
+                from_account.balance -= transfer_amount
+                to_account_obj.balance += transfer_amount
                 from_account.save()
                 to_account_obj.save()
 
                 Transaction.objects.create(
                     from_account=from_account,
                     to_account=to_account_obj,
-                    amount=amount,
+                    amount=transfer_amount,  # Use Decimal here too
                     transaction_type="TRANSFER",
                     description=f"Transfer to {to_account}",
                 )
 
                 return HttpResponse(f'''
-                <h3>✅ Transfer Successful!</h3>
-                <p>Transferred ${amount} to account {to_account}</p>
+                <h3> Transfer Successful!</h3>
+                <p>Transferred ${transfer_amount} to account {to_account}</p>
+                <p>Your new balance: <strong>${from_account.balance}</strong></p>
                 <a href="/transfer">Make another transfer</a> | <a href="/dashboard">Dashboard</a>
                 ''')
             else:
-                return HttpResponse("Insufficient Funds!")
+                return HttpResponse(f'''
+                <h3>Insufficient Funds!</h3>
+                <p>Your balance: ${from_account.balance}</p>
+                <p>Attempted transfer: ${transfer_amount}</p>
+                <a href="/transfer">Try again</a>
+                ''')
+
         except BankAccount.DoesNotExist:
             return HttpResponse("Account not found!")
+        except ValueError:
+            return HttpResponse("Invalid amount format!")
+        except Exception as e:
+            return HttpResponse(f"Error: {str(e)}")
 
-    # GET -> show vulnerable transfer form
-    return HttpResponse('''
-    <h2>💸 Transfer Money (CSRF Vulnerable)</h2>
-    <p>Logged in as: <strong>{}</strong></p>
+    # GET request - show transfer form
+    current_user = request.user.username if request.user.is_authenticated else "Unknown"
+    return HttpResponse(f'''
+    <h2>Transfer Money (CSRF Vulnerable)</h2>
+    <p>Logged in as: <strong>{current_user}</strong></p>
+    
     <form method="POST" action="/transfer">
         <!-- NO CSRF TOKEN - intentionally vulnerable -->
-        To Account: <input type="text" name="to_account" required><br>
-        Amount: $<input type="number" name="amount" step="0.01" required><br>
+        To Account: <input type="text" name="to_account" placeholder="ACC000002" required><br><br>
+        Amount: $<input type="number" name="amount" step="0.01" min="0.01" required><br><br>
         <button type="submit">Transfer Money</button>
     </form>
 
     <div style="margin-top: 30px; background: #ffe6e6; padding: 15px;">
         <h3>🚨 CSRF Attack Demo:</h3>
-        <p>Create a file called <code>csrf_attack.html</code> with this content:</p>
-        <textarea rows="8" cols="80" style="width: 100%;">
-&lt;html&gt;
-&lt;body onload="document.forms[0].submit()"&gt;
-    &lt;h2&gt;You won a prize! Click to claim...&lt;/h2&gt;
-    &lt;form action="http://localhost:8000/transfer" method="POST"&gt;
-        &lt;input type="hidden" name="to_account" value="ACC000002"&gt;
-        &lt;input type="hidden" name="amount" value="500"&gt;
-    &lt;/form&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-        </textarea>
-        <p>Open this file in browser while logged into the bank.</p>
-    </div>
-    
+        <p>Test accounts:</p>
+        <ul>
+            <li><strong>ranim</strong>: ACC000001 </li>
+            <li><strong>ghada</strong>: ACC000002 </li>
+            <li><strong>amina</strong>: ACC000003 </li>
+        </ul>
+        
+       
     <p><a href="/dashboard">← Back to Dashboard</a></p>
-    '''.format(request.user.username if request.user.is_authenticated else "Unknown"))
-
+    ''')
 # -----------------------------
 # Vulnerability 4: IDOR
 # -----------------------------
@@ -246,32 +258,63 @@ def account_info(request):
         ''')
     except BankAccount.DoesNotExist:
         return HttpResponse("No account found")
-
 # -----------------------------
 # Vulnerability 5: SSRF
 # -----------------------------
-def api_fetch_external_data(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({"error": "Authentication required"})
-    
-    url = request.GET.get("url", "")
-    if url:
-        try:
-            response = requests.get(url, timeout=5)
-            time.sleep(0.5)
-            content = response.text or ""
-            preview = content[:200] + "..." if len(content) > 200 else content
-            return JsonResponse({
-                "status": "success",
-                "url": url,
-                "content_preview": preview,
-                "content_length": len(content),
-                "status_code": response.status_code,
-            })
-        except Exception as e:
-            return JsonResponse({"error": f"Failed to fetch URL: {str(e)}"})
-    
-    return JsonResponse({"error": "URL parameter required"})
+# ----------------------------
+#   INTERNAL MOCK ENDPOINT
+# ----------------------------
+def internal_mock(request):
+    return JsonResponse({
+        "secret": "SUCCESS_INTERNAL_ENDPOINT",
+        "status": "ok"
+    })
+
+# ----------------------------
+#   SSRF VULNERABLE ENDPOINT
+# ----------------------------
+def fetch_url(request):
+    url = request.GET.get("url")
+
+    if not url:
+        return HttpResponse("""
+            <h2>SSRF Demo</h2>
+            <p>Enter a URL:</p>
+            <form method='GET'>
+                <input name='url' style='width:300px'>
+                <button>Fetch</button>
+            </form>
+        """)
+
+    try:
+        r = requests.get(url, timeout=3)
+        content = r.text[:2000]  # limiter pour éviter les gros dumps
+
+        return HttpResponse(f"""
+            <h2>Fetched URL Content</h2>
+            <p><strong>URL:</strong> {url}</p>
+            <p><strong>Status:</strong> {r.status_code}</p>
+
+            <h3>Content Preview:</h3>
+            <pre style="background:#eee;padding:10px;">{content}</pre>
+
+            <p><a href="/fetch-url">Back</a></p>
+        """)
+    except Exception as e:
+        return HttpResponse(f"<p>Error: {e}</p>")
+
+def ssrf_page(request):
+    return HttpResponse("""
+        <h2>🧨 SSRF Test Interface</h2>
+        <p>Enter any URL. The server will fetch it (vulnerable behavior).</p>
+        
+        <form method='GET' action='/fetch-url'>
+            <input type='text' name='url' placeholder='http://127.0.0.1:8000/internal/mock' style='width:400px;'>
+            <button type='submit'>Tester SSRF</button>
+        </form>
+
+        <p><a href='/'>← Retour Home</a></p>
+    """)
 
 # -----------------------------
 # Logout

@@ -1,8 +1,3 @@
-<<<<<<< Updated upstream
-from django.shortcuts import render
-
-# Create your views here.
-=======
 from django.http import HttpResponse, JsonResponse
 from .middleware import is_malicious
 from django.contrib.auth import login, authenticate
@@ -198,4 +193,3 @@ def api_fetch_external_data(request):
         except Exception as e:
             return JsonResponse({'error': f'Failed to fetch URL: {str(e)}'})
     return JsonResponse({'error': 'URL parameter required'})
->>>>>>> Stashed changes

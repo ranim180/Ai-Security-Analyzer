@@ -53,17 +53,28 @@
             <p><em>No authorization checks on account access</em></p>
         </div>
         
-        <div class="vuln-card">
-            <h3>🔗 Vulnerability 5: SSRF (Server-Side Request Forgery)</h3>
-            <p>Access internal resources through the bank server</p>
-            <a href="/regular-login" class="test-btn">Login First</a>
-            <p><strong>Test URLs:</strong> 
-                <code>http://localhost:8080/admin</code>, 
-                <code>http://127.0.0.1:3306</code>,
-                <code>http://169.254.169.254/</code>
-            </p>
-            <p><em>No URL validation on external data fetcher</em></p>
-        </div>
+        <!-- SSRF -->
+            <div class="card">
+                <h3><span class="badge ssrf">SSRF</span> Server-Side Request Forgery</h3>
+                <p>
+                    L’attaque SSRF permet de forcer le serveur à visiter une URL interne
+                    en la passant via un paramètre <code>?url=</code>.
+                    L’utilisateur n’y a normalement pas accès.
+                </p>
+
+                <p><strong>Exemple d’URL interne sensible :</strong></p>
+                <code>http://127.0.0.1:8000/internal/mock</code>
+
+                <p>
+                    En cliquant sur le bouton ci‑dessous :<br>
+                    Vous serez redirigé vers une interface pour tester l’attaque SSRF.
+                </p>
+
+                <!-- IMPORTANT : cohérence avec les autres vulnérabilités -->
+                <a href="/ssrf" class="btn btn-primary">
+                    Login → Tester l’attaque SSRF
+                </a>
+            </div>
         
         <div class="credentials">
             <h3>🧪 Test Credentials:</h3>
