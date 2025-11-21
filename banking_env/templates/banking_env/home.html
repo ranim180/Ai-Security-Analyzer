@@ -6,6 +6,7 @@
     <title>Vulnerable Bank - Intentionally Insecure Lab</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
+
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
@@ -146,11 +147,22 @@
             color: #aaa;
             font-size: 0.9em;
         }
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .vuln-card { background: #fff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 15px 0; }
+        .vuln-card h3 { margin-top: 0; color: #d32f2f; }
+        .test-btn { background: #1976d2; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; margin: 5px; }
+        .test-btn:hover { background: #1565c0; }
+        .sql-btn { background: #dc3545; }
+        .sql-btn:hover { background: #c82333; }
+        code { background: #f1f1f1; padding: 2px 6px; border-radius: 3px; }
+        .credentials { margin-top: 30px; padding: 15px; background: #e3f2fd; border-radius: 5px; }
     </style>
 </head>
 
 <body>
     <div class="container">
+<<<<<<< HEAD
         <header>
             <h1>Vulnerable Banking System</h1>
             <p style="margin:10px 0 0;font-size:1.2em;">Intentionally Vulnerable Application for Learning & Testing</p>
@@ -230,6 +242,80 @@
                 <a href="/regular-login" class="btn btn-success" style="font-size:1.3em;padding:15px 30px;">EXPLOIT ALL
                     OTHER VULNS</a>
             </div>
+=======
+        <h1>🏦 Vulnerable Banking System</h1>
+        <p><strong style="color: red;">⚠️ WARNING: This system contains intentional vulnerabilities for testing purposes</strong></p>
+        
+        <div class="vuln-card">
+            <h3>🔐 Vulnerability 1: SQL Injection</h3>
+            <p>Bypass authentication using SQL injection in the vulnerable login form</p>
+            <a href="/vulnerable-login" class="test-btn sql-btn">Test SQL Injection</a>
+            <a href="/regular-login" class="test-btn">Regular Login</a>
+            <p><strong>Test Payload:</strong> <code>' OR '1'='1' -- </code> (as username, no password)</p>
+            <p><em>Uses vulnerable users table with plain text passwords</em></p>
+        </div>
+        
+        <div class="vuln-card">
+            <h3>🚩 Vulnerability 2: XSS (Cross-Site Scripting)</h3>
+            <p>Inject malicious scripts via the dashboard search</p>
+            <a href="/regular-login" class="test-btn">Login First</a>
+            <p><strong>Test Payload:</strong> <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></p>
+            <p><em>Reflected XSS in search results</em></p>
+        </div>
+        
+        <div class="vuln-card">
+            <h3>🔄 Vulnerability 3: CSRF (Cross-Site Request Forgery)</h3>
+            <p>Execute unauthorized money transfers without user consent</p>
+            <a href="/regular-login" class="test-btn">Login First</a>
+            <p><strong>Test:</strong> Create the CSRF attack HTML file shown in transfer page</p>
+            <p><em>No CSRF protection on transfer endpoint</em></p>
+        </div>
+        
+        <div class="vuln-card">
+            <h3>👁️ Vulnerability 4: IDOR (Insecure Direct Object Reference)</h3>
+            <p>Access other users' account information by changing URL parameters</p>
+            <a href="/regular-login" class="test-btn">Login First</a>
+            <p><strong>Test:</strong> Change account_id parameter to view other accounts</p>
+            <p><em>No authorization checks on account access</em></p>
+        </div>
+        
+        <div class="vuln-card">
+            <h3>🔗 Vulnerability 5: SSRF (Server-Side Request Forgery)</h3>
+            <p>Access internal resources through the bank server</p>
+            <a href="/regular-login" class="test-btn">Login First</a>
+            <p><strong>Test URLs:</strong> 
+                <code>http://localhost:8080/admin</code>, 
+                <code>http://127.0.0.1:3306</code>,
+                <code>http://169.254.169.254/</code>
+            </p>
+            <p><em>No URL validation on external data fetcher</em></p>
+        </div>
+        
+        <div class="credentials">
+            <h3>🧪 Test Credentials:</h3>
+            <p><strong>For SQL Injection (Vulnerable Users):</strong></p>
+            <ul>
+                <li>Username: <code>vranim</code>, Password: <code>password123</code></li>
+                <li>Username: <code>vghada</code>, Password: <code>password123</code></li>
+                <li>Username: <code>vamina</code>, Password: <code>password123</code></li>
+            </ul>
+            
+            <p><strong>For Other Vulnerabilities (Regular Users):</strong></p>
+            <ul>
+                <li>Username: <code>ranim</code>, Password: <code>password123</code></li>
+                <li>Username: <code>ghada</code>, Password: <code>password123</code></li>
+                <li>Username: <code>amina</code>, Password: <code>password123</code></li>
+            </ul>
+            
+            <p><strong>SQL Injection Bypass:</strong> Username: <code>' OR '1'='1' -- </code> (no password needed)</p>
+        </div>
+
+        <div style="margin-top: 20px; text-align: center;">
+            <p><strong>Quick Start:</strong> 
+                <a href="/vulnerable-login" class="test-btn sql-btn">Test SQL Injection</a>
+                <a href="/regular-login" class="test-btn">Test Other Vulnerabilities</a>
+            </p>
+>>>>>>> c6510aa97ca8c40f67333f07e61e9f82816ac7b1
         </div>
 
         <footer>

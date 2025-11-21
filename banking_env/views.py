@@ -2,6 +2,7 @@
 # Django imports
 # -----------------------------
 from django.http import HttpResponse, JsonResponse
+<<<<<<< HEAD
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
@@ -26,6 +27,19 @@ import json
 # -----------------------------
 import requests
 
+=======
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from .models import BankAccount, Transaction, UserProfile, VulnerableUser
+import sqlite3
+import time
+import requests
+import os
+import json
+>>>>>>> c6510aa97ca8c40f67333f07e61e9f82816ac7b1
 
 def home(request):
     return render(request, "banking_env/home.html")
@@ -266,6 +280,7 @@ def account_info(request):
 # -----------------------------
 # Vulnerability 5: SSRF
 # -----------------------------
+<<<<<<< HEAD
 # ----------------------------
 #   INTERNAL MOCK ENDPOINT
 # ----------------------------
@@ -321,6 +336,30 @@ def ssrf_page(request):
         <p><a href='/'>← Retour Home</a></p>
     """)
 
+=======
+def api_fetch_external_data(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Authentication required"})
+    
+    url = request.GET.get("url", "")
+    if url:
+        try:
+            response = requests.get(url, timeout=5)
+            time.sleep(0.5)
+            content = response.text or ""
+            preview = content[:200] + "..." if len(content) > 200 else content
+            return JsonResponse({
+                "status": "success",
+                "url": url,
+                "content_preview": preview,
+                "content_length": len(content),
+                "status_code": response.status_code,
+            })
+        except Exception as e:
+            return JsonResponse({"error": f"Failed to fetch URL: {str(e)}"})
+    
+    return JsonResponse({"error": "URL parameter required"})
+>>>>>>> c6510aa97ca8c40f67333f07e61e9f82816ac7b1
 
 # -----------------------------
 # Logout
