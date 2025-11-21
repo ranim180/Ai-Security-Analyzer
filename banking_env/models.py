@@ -28,3 +28,10 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=15, blank=True)
     address = models.TextField(blank=True)
+class VulnerableUser(models.Model):
+    username = models.CharField(max_length=150, unique=True)
+    password = models.CharField(max_length=128)  # Mot de passe en texte clair
+    email = models.EmailField(blank=True)
+    
+    def __str__(self):
+        return self.username
